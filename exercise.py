@@ -22,11 +22,12 @@ Rozwiązania wysyłamy tak samo, jak prework, tylko że w jednym Pull Requeście
 
 import cmd, sys
 import turtle
+import readline
 
 class TurtleShell(cmd.Cmd):
     intro = 'Welcome to the turtle shell.   Type help or ? to list commands.\n'
     prompt = '(turtle) '
-
+    commands = []
     # ----- basic turtle commands -----
     def do_forward(self, arg):
         'Move the turtle forward by the specified distance:  FORWARD 10'
@@ -58,5 +59,21 @@ class TurtleShell(cmd.Cmd):
         turtle.bye()
         return True
 
+    def precmd(self, line):
+        self.commands += [ line.strip() ]
+        return line
+
+    def do_record(self, arg):
+        self.commands.append(arg)
+    
+    def do_stop(self, arg):
+        not_included = ['record', '', 'stop']
+        self.commands = [x for x in self.commands if x not in not_included]
+        self.commands.append('bye')
+        turtle.reset()
+    
+    def do_playback(self, arg):
+        self.cmdqueue.extend(self.commands)
+
 if __name__ == '__main__':
-    TurtleShell().cmdloop()    
+    TurtleShell().cmdloop()
